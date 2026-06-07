@@ -1,0 +1,6 @@
+pandas
+streamlit
+xgboost==0.90
+catboost
+lightgbm
+scikit-learn
