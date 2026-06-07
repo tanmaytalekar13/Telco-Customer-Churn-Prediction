@@ -36,17 +36,7 @@ LightGBM.
 * [Kaggle Dataset URL](https://www.kaggle.com/blastchar/telco-customer-churn)
 * [GitHub Dataset URL](https://github.com/IBM/telco-customer-churn-on-icp4d/tree/master/data)
 
-You can also : 
-* Check the **GitHub Project Repository**   [![](https://img.shields.io/badge/Customer%20Churn%20Prediction-GitHub-100000?logo=github&logoColor=white)](https://github.com/ahmedshahriar/Customer-Churn-Prediction)
-
-* View the Project in **Jupyter Notebook Html**   [![Open in HTML](https://img.shields.io/badge/Html-Open%20Notebook-blue?logo=HTML5)](https://nbviewer.org/github/ahmedshahriar/Customer-Churn-Prediction/blob/main/Telco-Customer-Churn-Prediction.html) 
-
-* Open The GitHub Project in **Binder**  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ahmedshahriar/Customer-Churn-Prediction/main)
-
-### You can also view this notebook on kaggle
-
-1. [Churn Prediction I : EDA+Statistical Analysis](https://www.kaggle.com/ahmedshahriarsakib/churn-prediction-i-eda-statistical-analysis)
-2. [Churn Prediction II : Triple Boost Stacking+  Optuna](https://www.kaggle.com/ahmedshahriarsakib/churn-prediction-ii-triple-boost-stacking-optuna)
+You can also check the **GitHub Project Repository** [![](https://img.shields.io/badge/Customer%20Churn%20Prediction-GitHub-100000?logo=github&logoColor=white)](https://github.com/tanmaytalekar13/Customer-Churn-Prediction)
 
 """)
 
@@ -67,14 +57,12 @@ def download_dataset(df):
     return href
 
 
-# st.set_option('deprecation.showPyplotGlobalUse', False)
 st.markdown(download_dataset(df_churn), unsafe_allow_html=True)
 
 st.markdown("## Prediction Result")
 
 
 st.sidebar.markdown("## Predict Customer Churn Rate")
-# st.sidebar.markdown("### Select a Model")
 classifier_name = st.sidebar.selectbox(
     'Select a Classifier',
     ('XGBoost', 'CatBoost', 'LightGBM')
@@ -89,8 +77,6 @@ def get_classifier(clf_name):
         clf = CatBoostClassifier()  # parameters not required.
         clf.load_model('models/model_catboost')
     else:
-        # clf = lgbm.LGBMClassifier()
-        # clf = joblib.load("models/model_lgbm.pkl")
         clf = lgbm.Booster(model_file='models/model_lgbm.txt')
     return clf
 
@@ -125,13 +111,12 @@ def get_transformed_data(test_data=None):
 
 def make_prediction(X_test):
     try:
-        # xgboost,
+        # xgboost, catboost
         test_pred = clf.predict_proba(X_test)[:, 1]  # probability of getting 1
-    except AttributeError as ae:
+    except AttributeError:
         # lgbm load model
         # https://github.com/Microsoft/LightGBM/issues/1217
         test_pred = clf.predict(X_test)
-    # st.dataframe(test_pred)
     return test_pred
 
 
@@ -252,24 +237,6 @@ input_df = user_input_features()
 
 num_cols = input_df.select_dtypes(include=['int64', 'float64']).columns
 cat_cols = input_df.select_dtypes(include=['object']).columns
-
-# todo : transformer pipeline
-
-# numerical_transformer = Pipeline(steps=[
-#     ('scaler', RobustScaler())
-# ])
-# categorical_transformer = Pipeline(steps=[
-#     ('ord', OrdinalEncoder())
-# ])
-# preprocessor = Pipeline(
-#     steps=[
-#         ('num', numerical_transformer, num_cols),
-#         ('cat', categorical_transformer, cat_cols),
-#     ])
-# preprocessor.fit(df_churn)
-#
-# scaled_input = preprocessor.transform(input_df)
-# st.write(scaled_input)
 
 X = df_train.drop("Churn", axis=1)
 user_df = input_df.copy()
