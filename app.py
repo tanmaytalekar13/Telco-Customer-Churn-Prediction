@@ -232,11 +232,15 @@ def user_input_features():
 
 input_df = user_input_features()
 
-num_cols = input_df.select_dtypes(include=['int64', 'float64']).columns
-cat_cols = input_df.select_dtypes(include=['object']).columns
-
+# Use training data column order and types as the reference
 X = df_train.drop("Churn", axis=1)
+num_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
+cat_cols = list(set(X.columns) - set(X._get_numeric_data().columns))
+
+# Align user_df to have the exact same columns and order as training data
 user_df = input_df.copy()
+user_df = user_df[X.columns]  # reorder columns to match training set
+
 ordinal_encoder = OrdinalEncoder()
 X[cat_cols] = ordinal_encoder.fit_transform(X[cat_cols])
 user_df[cat_cols] = ordinal_encoder.transform(user_df[cat_cols])
