@@ -17,26 +17,23 @@ import lightgbm as lgbm
 st.title('Telco Customer Churn Prediction')
 
 st.markdown("""
-The churn rate, also known as the rate of attrition or customer churn, is the rate at which customers stop doing 
-business with an entity (e.g., Business Organization). 
+Customer churn is one of the biggest challenges in the telecom industry.
+Losing a customer is always more costly than retaining one — so being able to predict *who might leave* before they actually do is incredibly valuable.
 
-You will predict the churn rate of customers in a telecom company using a stored model based on XGBoost, CatBoost or 
-LightGBM.
+This project is my attempt at building a churn prediction system using three powerful gradient boosting models: **XGBoost**, **CatBoost**, and **LightGBM**.
+I trained and tuned each model on real telecom customer data, and this app lets you interact with them directly.
 
-## Instructions
-1. Select the classifier (model) you want to use from the dropdown box in the sidebar
-2. To check the accuracy of the classifier, click on the **`Performance on Test Dataset`** button in the sidebar
-3. To predict churn rate of a single observation, click on the **`Prediction on Random Instance`** button in the sidebar
-4. Or you can predict churn rate by manual input from the sidebar, scroll down and click **`Predict`** button 
-5. The result will be displayed in the **[Prediction Result](#prediction-result)** section
+## How to use this app
 
+1. Pick a model from the **sidebar** — XGBoost, CatBoost, or LightGBM
+2. Hit **`Performance on Test Dataset`** to see how well the model performs (ROC AUC + curve)
+3. Hit **`Prediction on Random Instance`** to test the model on a random customer from the test set
+4. Or fill in customer details manually in the sidebar and click **`Predict`** to get a live prediction
+5. All results show up in the **[Prediction Result](#prediction-result)** section below
 
-## Dataset Source :
+---
 
-* [Kaggle Dataset URL](https://www.kaggle.com/blastchar/telco-customer-churn)
-* [GitHub Dataset URL](https://github.com/IBM/telco-customer-churn-on-icp4d/tree/master/data)
-
-You can also check the **GitHub Project Repository** [![](https://img.shields.io/badge/Customer%20Churn%20Prediction-GitHub-100000?logo=github&logoColor=white)](https://github.com/tanmaytalekar13/Customer-Churn-Prediction)
+[![](https://img.shields.io/badge/GitHub-View%20Source%20Code-100000?logo=github&logoColor=white)](https://github.com/tanmaytalekar13/Customer-Churn-Prediction)
 
 """)
 
