@@ -17,23 +17,36 @@ import lightgbm as lgbm
 st.title('Telco Customer Churn Prediction')
 
 st.markdown("""
-Customer churn is one of the biggest challenges in the telecom industry.
-Losing a customer is always more costly than retaining one — so being able to predict *who might leave* before they actually do is incredibly valuable.
+The churn rate, also known as the rate of attrition or customer churn, is the rate at which customers stop doing 
+business with an entity (e.g., Business Organization). 
 
-This project is my attempt at building a churn prediction system using three powerful gradient boosting models: **XGBoost**, **CatBoost**, and **LightGBM**.
-I trained and tuned each model on real telecom customer data, and this app lets you interact with them directly.
+You will predict the churn rate of customers in a telecom company using a stored model based on XGBoost, CatBoost or 
+LightGBM.
 
-## How to use this app
+## Instructions
+1. Select the classifier (model) you want to use from the dropdown box in the sidebar
+2. To check the accuracy of the classifier, click on the **`Performance on Test Dataset`** button in the sidebar
+3. To predict churn rate of a single observation, click on the **`Prediction on Random Instance`** button in the sidebar
+4. Or you can predict churn rate by manual input from the sidebar, scroll down and click **`Predict`** button 
+5. The result will be displayed in the **[Prediction Result](#prediction-result)** section
 
-1. Pick a model from the **sidebar** — XGBoost, CatBoost, or LightGBM
-2. Hit **`Performance on Test Dataset`** to see how well the model performs (ROC AUC + curve)
-3. Hit **`Prediction on Random Instance`** to test the model on a random customer from the test set
-4. Or fill in customer details manually in the sidebar and click **`Predict`** to get a live prediction
-5. All results show up in the **[Prediction Result](#prediction-result)** section below
 
----
+## Dataset Source :
 
-[![](https://img.shields.io/badge/GitHub-View%20Source%20Code-100000?logo=github&logoColor=white)](https://github.com/tanmaytalekar13/Customer-Churn-Prediction)
+* [Kaggle Dataset URL](https://www.kaggle.com/blastchar/telco-customer-churn)
+* [GitHub Dataset URL](https://github.com/IBM/telco-customer-churn-on-icp4d/tree/master/data)
+
+You can also : 
+* Check the **GitHub Project Repository**   [![](https://img.shields.io/badge/Customer%20Churn%20Prediction-GitHub-100000?logo=github&logoColor=white)](https://github.com/ahmedshahriar/Customer-Churn-Prediction)
+
+* View the Project in **Jupyter Notebook Html**   [![Open in HTML](https://img.shields.io/badge/Html-Open%20Notebook-blue?logo=HTML5)](https://nbviewer.org/github/ahmedshahriar/Customer-Churn-Prediction/blob/main/Telco-Customer-Churn-Prediction.html) 
+
+* Open The GitHub Project in **Binder**  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ahmedshahriar/Customer-Churn-Prediction/main)
+
+### You can also view this notebook on kaggle
+
+1. [Churn Prediction I : EDA+Statistical Analysis](https://www.kaggle.com/ahmedshahriarsakib/churn-prediction-i-eda-statistical-analysis)
+2. [Churn Prediction II : Triple Boost Stacking+  Optuna](https://www.kaggle.com/ahmedshahriarsakib/churn-prediction-ii-triple-boost-stacking-optuna)
 
 """)
 
@@ -54,12 +67,14 @@ def download_dataset(df):
     return href
 
 
+# st.set_option('deprecation.showPyplotGlobalUse', False)
 st.markdown(download_dataset(df_churn), unsafe_allow_html=True)
 
 st.markdown("## Prediction Result")
 
 
 st.sidebar.markdown("## Predict Customer Churn Rate")
+# st.sidebar.markdown("### Select a Model")
 classifier_name = st.sidebar.selectbox(
     'Select a Classifier',
     ('XGBoost', 'CatBoost', 'LightGBM')
@@ -74,6 +89,8 @@ def get_classifier(clf_name):
         clf = CatBoostClassifier()  # parameters not required.
         clf.load_model('models/model_catboost')
     else:
+        # clf = lgbm.LGBMClassifier()
+        # clf = joblib.load("models/model_lgbm.pkl")
         clf = lgbm.Booster(model_file='models/model_lgbm.txt')
     return clf
 
@@ -108,12 +125,13 @@ def get_transformed_data(test_data=None):
 
 def make_prediction(X_test):
     try:
-        # xgboost, catboost
+        # xgboost,
         test_pred = clf.predict_proba(X_test)[:, 1]  # probability of getting 1
-    except AttributeError:
+    except AttributeError as ae:
         # lgbm load model
         # https://github.com/Microsoft/LightGBM/issues/1217
         test_pred = clf.predict(X_test)
+    # st.dataframe(test_pred)
     return test_pred
 
 
@@ -232,15 +250,29 @@ def user_input_features():
 
 input_df = user_input_features()
 
-# Use training data column order and types as the reference
+num_cols = input_df.select_dtypes(include=['int64', 'float64']).columns
+cat_cols = input_df.select_dtypes(include=['object']).columns
+
+# todo : transformer pipeline
+
+# numerical_transformer = Pipeline(steps=[
+#     ('scaler', RobustScaler())
+# ])
+# categorical_transformer = Pipeline(steps=[
+#     ('ord', OrdinalEncoder())
+# ])
+# preprocessor = Pipeline(
+#     steps=[
+#         ('num', numerical_transformer, num_cols),
+#         ('cat', categorical_transformer, cat_cols),
+#     ])
+# preprocessor.fit(df_churn)
+#
+# scaled_input = preprocessor.transform(input_df)
+# st.write(scaled_input)
+
 X = df_train.drop("Churn", axis=1)
-num_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
-cat_cols = list(set(X.columns) - set(X._get_numeric_data().columns))
-
-# Align user_df to have the exact same columns and order as training data
 user_df = input_df.copy()
-user_df = user_df[X.columns]  # reorder columns to match training set
-
 ordinal_encoder = OrdinalEncoder()
 X[cat_cols] = ordinal_encoder.fit_transform(X[cat_cols])
 user_df[cat_cols] = ordinal_encoder.transform(user_df[cat_cols])
